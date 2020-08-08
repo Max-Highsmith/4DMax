@@ -9,6 +9,6 @@ def movementLoss(struc_t):
         start = time.time()
         change = np.zeros(struc_t.shape)
         change[0:-1]  = struc_t[0:-1]-struc_t[1:]
-        print("moveloss:",time.time()-start)
+        #print("move time:",time.time()-start)
         return change
 

@@ -13,7 +13,7 @@ def pcc_distances(hic_dists, struc_t, row_tau, col_tau, ts):
         wish_dists = getWishDistances(struc_t, row_tau, col_tau,ts)
         for t in hic_dists.keys():
                 val[t] = pearsonr(hic_dists[t], wish_dists[t])
-        print(val)
+        return val
 
 
 
@@ -55,6 +55,9 @@ def struc2contacts(struc):
         for i in range(0, mat.shape[0]):
                 mat[i,i] = big
         return mat
+
+def saveStruc(struc_t, ARGS):
+	np.save(struc_name, struc_t)
 
 def saveContacts(struc_t, struc_name, res):
         np.save("Generated_Structures/"+struc_name, struc_t)

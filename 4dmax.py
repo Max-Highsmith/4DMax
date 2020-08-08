@@ -1,3 +1,4 @@
+import sys
 import os
 from scipy.stats import pearsonr
 import functools
@@ -9,22 +10,34 @@ import numpy as np
 import Utils.util as ut
 import Utils.movement as mv
 import Utils.likelihood as li
+
+#settings
 np.set_printoptions(formatter={'float': lambda x: "{0:0.3f}".format(x)})
+np.random.seed(0)
 
 #Parameters
-eta         = 1000
-alpha       = 0.6
-lr          = .0001
-#epochs      = 1000
-epochs      = 2
-res         = 50000
-struc_name  = "PSC_rep1_1"
+struc_name = sys.argv[1]
+eta        = int(sys.argv[2])
+alpha      = float(sys.argv[3])
+lr         = float(sys.argv[4])
+epochs     = int(sys.argv[5])
+res        = int(sys.argv[6])
+step       = int(sys.argv[7])
+chro       = int(sys.argv[8])
+rep        = int(sys.argv[9])
 
-taos = np.array([0,1,2,3,4,5])
-ts   = np.linspace(0,5,21)
+if struc_name == "iPluripotent":
+          fn          = ["Real_Data/iPluripotent/day_Ba_rep_"+str(rep)+"_chro_"+str(chro),
+                "Real_Data/iPluripotent/day_D2_rep_"+str(rep)+"_chro_"+str(chro),
+     	       	"Real_Data/iPluripotent/day_D4_rep_"+str(rep)+"_chro_"+str(chro),
+                "Real_Data/iPluripotent/day_D6_rep_"+str(rep)+"_chro_"+str(chro),
+                "Real_Data/iPluripotent/day_D8_rep_"+str(rep)+"_chro_"+str(chro),
+                "Real_Data/iPluripotent/day_ES_rep_"+str(rep)+"_chro_"+str(chro)]
 
-#taos = np.array([0,1,5])
-#ts    =np.array([0,1.,2.,3.,4.,5.])
+          taos = np.array([0,1,2,3,4,5])
+          ts   = np.linspace(0,5,step)
+
+
 #three D structure
 map_tao       = {} 
 row_tao       = {}
@@ -34,15 +47,10 @@ ifs_tao       = {}
 n_tao         = {}
 n_min_tao     = {}
 
-fn=['day_B_rep_1_chro_18', 
-    'day_D2_rep_1_chro_18',
-    'day_D4_rep_1_chro_18',
-    'day_D6_rep_1_chro_18',
-    'day_D8_rep_1_chro_18',
-    'day_ES_rep_1_chro_18']
+#load data and build starting strucs
 for tao in taos:
 	#map_tao[tao]         = np.loadtxt("Synthetic_Data/Synthetic_Contact_Maps/"+struc_name+"_"+str(tao)+".txt")
-	map_tao[tao]          = np.loadtxt("Real_Data/iPluripotent/"+str(fn[tao]))
+	map_tao[tao]          = np.loadtxt(str(fn[tao]))
 	row_tao[tao]          = (map_tao[tao][:,0].astype(int)/res).astype(int)
 	col_tao[tao]          = (map_tao[tao][:,1].astype(int)/res).astype(int)
 	ifs_tao[tao]          = map_tao[tao][:,2]
@@ -52,27 +60,32 @@ for tao in taos:
 
 n_max  = n_tao[list(n_tao.keys())[0]]
 n_min  = n_min_tao[list(n_tao.keys())[0]]
-
 for tao in taos:
 	row_tao[tao] = row_tao[tao] - n_min_tao[tao]
 	col_tao[tao] = col_tao[tao] - n_min_tao[tao]
-
-np.random.seed(0)
 struc_t       = np.random.rand(ts.shape[0], n_max+1-n_min, 3)
 
+
+#train
+pcc_log     = []
+mov_log     = []
 for e in range(0, epochs):
 	likelihood_loss  = li.likelihoodloss(hic_dist_tao, row_tao, col_tao, struc_t, ts, taos, n_max, n_min)
 	movement_loss    = mv.movementLoss(struc_t)
+	
 	print(e, "movement: ", mv.movement(struc_t))
 	struc_t -= lr*(likelihood_loss+(eta*movement_loss))
 
 	#loss
-	ut.pcc_distances(hic_dist_tao, struc_t, row_tao, col_tao, ts)
+	pc_dist  = ut.pcc_distances(hic_dist_tao, struc_t, row_tao, col_tao, ts)
+	movement = mv.movement(struc_t)
+	pcc_log.append(pc_dist)
+	mov_log.append(movement)
 
-for t in range(0, struc_t.shape[0]):
-	window = (np.min(struc_t[:,:], axis=(0,1,2)), np.max(struc_t[:,:], axis=(0,1,2)))
-	ut.show_struc(struc_t[t],t, struc_name, window, ts)
-
-ut.saveContacts(struc_t, struc_name, res)
-print(ts)
+#save everthing
+save_str= ""+struc_name+"_rep_"+str(rep)+"_eta_"+str(eta)+"_alpha_"+str(alpha)+"_lr_"+str(lr)+"_epoch_"+str(epochs)+"_res_"+str(res)+"_step_"+str(step)+"_chro_"+str(chro)
+logg = {'pcc_log':pcc_log,
+	'mov_log':mov_log}
+np.save("Generated_Struc_Logs/"+save_str, logg)
+np.save("Generated_Structures/"+save_str, struc_t)
 os.system("./make_gif.sh "+str(ts.shape[0]-1))

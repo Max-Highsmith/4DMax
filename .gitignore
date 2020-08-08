@@ -1,3 +1,11 @@
 Real_Data/*
 Synthetic_Data/*
 Other_tools/*
+__pycache__/
+Generated_Contact_Maps/
+Generated_Structures/
+Image_Results/*
+Gifs/
+Generated_Struc_Logs/
+Utils/__pycached__/
+.snakemake

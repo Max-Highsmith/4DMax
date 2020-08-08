@@ -10,9 +10,11 @@ np.set_printoptions(formatter={'float': lambda x: "{0:0.3f}".format(x)})
 
 #lr    = .001
 alpha  = 0.6
-epochs = 300
-res    = 50000
-lr     = .00001
+epochs = 50
+#res    = 50000
+res = 1
+lr = .000001
+#lr     = .00001
 #res  = 50000
 
 
@@ -74,7 +76,8 @@ def getGradient(hic_dist, row, col, struc):
 #day_0     = np.loadtxt("Synthetic_Data/Synthetic_Contact_Maps/struc1_3.txt")
 #day_0     = np.loadtxt("day_0_chr_9.txt")
 #day_0     = np.loadtxt("Real Data/chr1_100000.txt")
-day_0      = np.loadtxt("Real_Data/iPluripotent/day_D2_rep_1_chro_18")
+#day_0      = np.loadtxt("Real_Data/iPluripotent/day_D2_rep_1_chro_18")
+day_0     = np.loadtxt("Real_Data/Cardiomyocyte/GSM2845448_ESC_Rep1_500KB_ICED.matrix")
 
 
 row        = (day_0[:,0].astype(int)/res).astype(int)
