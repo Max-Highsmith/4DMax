@@ -1,0 +1,12 @@
+#Datasets, t-value
+strucName,iPSC
+chro,1
+rep,1
+tmin,0
+tmax,10
+Real_Data/iPluripotent/day_Ba_rep_1_chro_1,0
+Real_Data/iPluripotent/day_D2_rep_1_chro_1,2
+Real_Data/iPluripotent/day_D4_rep_1_chro_1,4
+Real_Data/iPluripotent/day_D6_rep_1_chro_1,6
+Real_Data/iPluripotent/day_D8_rep_1_chro_1,8
+Real_Data/iPluripotent/day_ES_rep_1_chro_1,10
