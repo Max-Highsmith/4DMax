@@ -9,3 +9,7 @@ Gifs/
 Generated_Struc_Logs/
 Utils/__pycached__/
 .snakemake
+Config/Datasets/ipsc*
+Config/Hyper_Params/4d*
+OTherLabs/
+
