@@ -1,3 +1,4 @@
+import pdb
 from scipy.stats import pearsonr
 import time
 import numpy as np
@@ -15,7 +16,14 @@ def pcc_distances(hic_dists, struc_t, row_tau, col_tau, ts):
                 val[t] = pearsonr(hic_dists[t], wish_dists[t])
         return val
 
-
+def constraints2mats(row, col, ifs):
+	bigbin   = np.max((row,col))
+	smallbin = np.min((row,col))
+	mat = np.zeros((bigbin-smallbin+1, bigbin-smallbin+1))
+	for r,c,i in zip(row, col, ifs):
+		mat[r-smallbin,c-smallbin] = i
+		mat[c-smallbin,r-smallbin] = i
+	return mat
 
 def show_struc(structure, t, struc_name, window, ts):
         print("saving "+str(t))
@@ -76,7 +84,8 @@ def if2dist(contact_maps, alpha):
 
 def getWishDistances(struc_t, row_tau, col_tau, ts):
         wishes = {}
-        for tau in range(0, len(row_tau.keys())):
+        #for tau in range(0, len(row_tau.keys())):
+        for tau in list(row_tau.keys()):
                 t = np.argwhere(ts==tau)[0][0]
                 wishes[tau] = getWishDist(struc_t[t], row_tau[tau], col_tau[tau])
         return wishes

@@ -1,3 +1,4 @@
+import pdb
 import Utils.util as ut
 import time
 import numpy as np
@@ -58,8 +59,8 @@ def likelihoodloss(hic_dist_tao, row_tao, col_tao, struc_t, ts, taos, n_max, n_m
         changea = np.zeros(struc_t.shape)
         changeb = np.zeros(struc_t.shape)
         for t in ts:
+                struc_index = np.where(ts==t)[0][0]
                 if float(t) in taos:
-                        struc_index = np.where(ts==t)[0][0]
                         changea[struc_index], changeb[struc_index] = getLikeChange(hic_dist_tao,
                                                 row_tao,
                                                 col_tao,
@@ -71,7 +72,6 @@ def likelihoodloss(hic_dist_tao, row_tao, col_tao, struc_t, ts, taos, n_max, n_m
 						n_max, 
 						n_min)
                 else:
-                        struc_index = np.where(ts==t)[0][0]
                         lower = taos[taos -t<0]
                         upper = taos[taos -t>0]
                         a1    = lower[np.argmin(np.abs(lower-t))]

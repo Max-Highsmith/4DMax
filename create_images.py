@@ -32,12 +32,12 @@ def plot3d(struc, timepoints, dirr,ts):
 		plt.savefig(dirr+"/"+str(t)+".png")
 
 rep =2
-for rep in [1,2]:
-	for i in range(7,11):
+for rep in [1]:
+	for i in range(1,2):
 		chro         = i
 		OUT_DIR      = "Image_Results/chro_"+str(chro)
 		#STRUC_FILE   = "Generated_Structures/PSC_rep1_1.npy"
-		STRUC_FILE   = "Generated_Structures/iPluripotent_rep_"+str(rep)+"_eta_1000_alpha_0.6_lr_0.0001_epoch_400_res_50000_step_21_chro_"+str(chro)+".npy"
+		STRUC_FILE   = "Generated_Structures/iPSC_full_rep_"+str(rep)+"_eta_1000_alpha_0.6_lr_0.0001_epoch_200_res_50000_step_21_chro_"+str(chro)+".npy"
 		TIME_POINTS  = np.linspace(0,5,21)
 		if not os.path.isdir(OUT_DIR):
 			os.makedirs(OUT_DIR)

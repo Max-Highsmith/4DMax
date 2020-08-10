@@ -1,3 +1,4 @@
+import json
 import sys
 import os
 from scipy.stats import pearsonr
@@ -15,6 +16,31 @@ import Utils.likelihood as li
 np.set_printoptions(formatter={'float': lambda x: "{0:0.3f}".format(x)})
 np.random.seed(0)
 
+dataset_fn = sys.argv[1]
+hyper_fn   = sys.argv[2]
+
+#Hyper Parameters
+param_set  = open(hyper_fn)
+param_vals = json.load(param_set)
+eta        = int(param_vals['eta'])
+alpha      = float( param_vals['alpha'])
+lr         = float(param_vals['lr'])
+epochs     = int(param_vals['epoch'])
+
+#Dataset
+dataset     = open(dataset_fn)
+data_vals  = json.load(dataset)
+struc_name = data_vals['name']
+res        = data_vals['res']
+rep        = data_vals['rep']
+fn         = data_vals['dataset']
+start_t    = data_vals['start_t']
+end_t      = data_vals['end_t']
+chro       = data_vals['chro']
+step       = data_vals['step']
+taos       = np.array(data_vals['taos'])
+
+'''
 #Parameters
 struc_name = sys.argv[1]
 eta        = int(sys.argv[2])
@@ -33,10 +59,9 @@ if struc_name == "iPluripotent":
                 "Real_Data/iPluripotent/day_D6_rep_"+str(rep)+"_chro_"+str(chro),
                 "Real_Data/iPluripotent/day_D8_rep_"+str(rep)+"_chro_"+str(chro),
                 "Real_Data/iPluripotent/day_ES_rep_"+str(rep)+"_chro_"+str(chro)]
-
-          taos = np.array([0,1,2,3,4,5])
-          ts   = np.linspace(0,5,step)
-
+'''
+#          taos = np.array([0,2,4,6,8,10])
+ts   = np.linspace(start_t,end_t,step)
 
 #three D structure
 map_tao       = {} 
@@ -48,9 +73,9 @@ n_tao         = {}
 n_min_tao     = {}
 
 #load data and build starting strucs
-for tao in taos:
+for s, tao in enumerate(taos):
 	#map_tao[tao]         = np.loadtxt("Synthetic_Data/Synthetic_Contact_Maps/"+struc_name+"_"+str(tao)+".txt")
-	map_tao[tao]          = np.loadtxt(str(fn[tao]))
+	map_tao[tao]          = np.loadtxt(str(fn[s]))
 	row_tao[tao]          = (map_tao[tao][:,0].astype(int)/res).astype(int)
 	col_tao[tao]          = (map_tao[tao][:,1].astype(int)/res).astype(int)
 	ifs_tao[tao]          = map_tao[tao][:,2]
@@ -60,7 +85,7 @@ for tao in taos:
 
 n_max  = n_tao[list(n_tao.keys())[0]]
 n_min  = n_min_tao[list(n_tao.keys())[0]]
-for tao in taos:
+for s, tao in enumerate(taos):
 	row_tao[tao] = row_tao[tao] - n_min_tao[tao]
 	col_tao[tao] = col_tao[tao] - n_min_tao[tao]
 struc_t       = np.random.rand(ts.shape[0], n_max+1-n_min, 3)
