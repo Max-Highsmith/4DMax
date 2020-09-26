@@ -5,7 +5,7 @@ import sys
 
 out_name = sys.argv[1]
 step     = int(sys.argv[2])
-chro     = int(sys.argv[3])
+chro     = sys.argv[3]
 rep      = int(sys.argv[4])
 missing  = int(sys.argv[5])
 res      = 50000

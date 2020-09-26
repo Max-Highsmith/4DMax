@@ -1,4 +1,4 @@
-Chronos is a tool for prediction of the 4dgenome conformation from a time-series Hi-C dataset
+4DMax is a tool for prediction of the 4dgenome conformation from a time-series Hi-C dataset
 
 
 #To run on test data.

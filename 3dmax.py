@@ -76,8 +76,8 @@ def getGradient(hic_dist, row, col, struc):
 #day_0     = np.loadtxt("Synthetic_Data/Synthetic_Contact_Maps/struc1_3.txt")
 #day_0     = np.loadtxt("day_0_chr_9.txt")
 #day_0     = np.loadtxt("Real Data/chr1_100000.txt")
-#day_0      = np.loadtxt("Real_Data/iPluripotent/day_D2_rep_1_chro_18")
-day_0     = np.loadtxt("Real_Data/Cardiomyocyte/GSM2845448_ESC_Rep1_500KB_ICED.matrix")
+day_0      = np.loadtxt("Real_Data/iPluripotent/day_D2_rep_1_chro_18")
+#day_0     = np.loadtxt("Real_Data/Cardiomyocyte/GSM2845448_ESC_Rep1_500KB_ICED.matrix")
 
 
 row        = (day_0[:,0].astype(int)/res).astype(int)
@@ -120,6 +120,6 @@ for e in range(0, epochs):
 	#current match
 	wish_dist = getWishDist(struc, row, col)
 	pcc_distances(hic_dist, wish_dist)
-	#print("change time", time.time()-start_time)
+	print("change time", time.time()-start_time)
 show_struc(prev_struc, 0, n_min)
 

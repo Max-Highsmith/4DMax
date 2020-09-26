@@ -2,8 +2,24 @@ import pdb
 from scipy.stats import pearsonr
 import time
 import numpy as np
+import cupy as cp
 import matplotlib.pyplot as plt
 
+
+def loadStrucAtTimeAsMat(struc, t):
+	struc = np.load(struc)
+	mat_struc = struc2contacts(struc[t])
+	return mat_struc
+
+def loadConstraintAsMat(stri, res=50000):
+	contact_map = np.loadtxt(stri)
+	rows = contact_map[:,0]
+	cols = contact_map[:,1]
+	vals = contact_map[:,2]
+	rows = (rows/res).astype(int)
+	cols = (cols/res).astype(int)
+	mat  = constraints2mats(rows, cols, vals)
+	return mat
 
 def pcc_distance(hic_dist, wish_dist):
         val = pearsonr(hic_dist, wish_dist)
@@ -16,6 +32,19 @@ def pcc_distances(hic_dists, struc_t, row_tau, col_tau, ts):
                 val[t] = pearsonr(hic_dists[t], wish_dists[t])
         return val
 
+def pcc_distanceGPU(hic_dist, wish_dist):
+        val = pearsonr(hic_dist, wish_dist)
+        print(val)
+
+def pcc_distancesGPU(hic_dists, struc_t, row_tau, col_tau, ts):
+        #ts      = cp.asnumpy(ts)
+        #struc_t = cp.asnumpy(struc_t)
+        val = {}
+        wish_dists = getWishDistancesGPU(struc_t, row_tau, col_tau,ts)
+        for t in hic_dists.keys():
+                val[t] = pearsonr(cp.asnumpy(hic_dists[t]), cp.asnumpy(wish_dists[t]))
+        return val
+
 def constraints2mats(row, col, ifs):
 	bigbin   = np.max((row,col))
 	smallbin = np.min((row,col))
@@ -24,6 +53,19 @@ def constraints2mats(row, col, ifs):
 		mat[r-smallbin,c-smallbin] = i
 		mat[c-smallbin,r-smallbin] = i
 	return mat
+
+def show_struc_indiv(structure):
+        plt.close()
+        plt.clf()
+        fig    = plt.figure()
+        ax     = plt.axes(projection="3d")
+        x      = structure[:,0]
+        y      = structure[:,1]
+        z      = structure[:,2]
+        ax.plot(x,y,z, linewidth=1)
+        plt.show()
+
+
 
 def show_struc(structure, t, struc_name, window, ts):
         print("saving "+str(t))
@@ -90,8 +132,20 @@ def getWishDistances(struc_t, row_tau, col_tau, ts):
                 wishes[tau] = getWishDist(struc_t[t], row_tau[tau], col_tau[tau])
         return wishes
 
+def getWishDistancesGPU(struc_t, row_tau, col_tau, ts):
+        wishes = {}
+        #for tau in range(0, len(row_tau.keys())):
+        for tau in list(row_tau.keys()):
+                t = np.argwhere(cp.asnumpy(ts)==tau)[0][0]
+                wishes[tau] = getWishDistGPU(struc_t[t], row_tau[tau], col_tau[tau])
+        return wishes
+
+def getWishDistGPU(struc, row, col):
+	wish = cp.zeros(row.shape)
+	wish = cp.linalg.norm(struc[row]-struc[col], axis=1)
+	return wish
+
 def getWishDist(struc, row, col):
-        start = time.time()
         wish  = np.zeros(row.shape)
         wish  = np.linalg.norm(struc[row]-struc[col],axis=1)
         return wish

@@ -1,3 +1,4 @@
+import cupy as cp
 import json
 import sys
 import os
@@ -40,28 +41,8 @@ chro       = data_vals['chro']
 step       = data_vals['step']
 taos       = np.array(data_vals['taos'])
 
-'''
-#Parameters
-struc_name = sys.argv[1]
-eta        = int(sys.argv[2])
-alpha      = float(sys.argv[3])
-lr         = float(sys.argv[4])
-epochs     = int(sys.argv[5])
-res        = int(sys.argv[6])
-step       = int(sys.argv[7])
-chro       = int(sys.argv[8])
-rep        = int(sys.argv[9])
-
-if struc_name == "iPluripotent":
-          fn          = ["Real_Data/iPluripotent/day_Ba_rep_"+str(rep)+"_chro_"+str(chro),
-                "Real_Data/iPluripotent/day_D2_rep_"+str(rep)+"_chro_"+str(chro),
-     	       	"Real_Data/iPluripotent/day_D4_rep_"+str(rep)+"_chro_"+str(chro),
-                "Real_Data/iPluripotent/day_D6_rep_"+str(rep)+"_chro_"+str(chro),
-                "Real_Data/iPluripotent/day_D8_rep_"+str(rep)+"_chro_"+str(chro),
-                "Real_Data/iPluripotent/day_ES_rep_"+str(rep)+"_chro_"+str(chro)]
-'''
-#          taos = np.array([0,2,4,6,8,10])
 ts   = np.linspace(start_t,end_t,step)
+
 
 #three D structure
 map_tao       = {} 
@@ -84,33 +65,78 @@ for s, tao in enumerate(taos):
 	n_min_tao[tao]        = np.min((row_tao[tao],col_tao[tao]))
 
 n_max  = n_tao[list(n_tao.keys())[0]]
-n_min  = n_min_tao[list(n_tao.keys())[0]]
+#n_min  = n_min_tao[list(n_tao.keys())[0]]
+n_min   = np.min(list(n_min_tao.values()))
 for s, tao in enumerate(taos):
 	row_tao[tao] = row_tao[tao] - n_min_tao[tao]
 	col_tao[tao] = col_tao[tao] - n_min_tao[tao]
 struc_t       = np.random.rand(ts.shape[0], n_max+1-n_min, 3)
 
+GPU = True
+if GPU:
+	print("Using GPU")
+	for i in hic_dist_tao.keys():
+		hic_dist_tao[i] = cp.array(hic_dist_tao[i])
+	struc_t         = cp.array(struc_t)	
+	ts              = cp.array(ts)
+	taos            = cp.array(taos)
 
-#train
-pcc_log     = []
-mov_log     = []
-for e in range(0, epochs):
-	likelihood_loss  = li.likelihoodloss(hic_dist_tao, row_tao, col_tao, struc_t, ts, taos, n_max, n_min)
-	movement_loss    = mv.movementLoss(struc_t)
-	
-	print(e, "movement: ", mv.movement(struc_t))
-	struc_t -= lr*(likelihood_loss+(eta*movement_loss))
+	pcc_log     = []
+	mov_log     = []
+	full_time   = []
+	for e in range(0, epochs):
+		start_time = time.time()
+		likelihood_loss  = li.likelihoodlossGPU(hic_dist_tao, row_tao, col_tao, struc_t, ts, taos, n_max, n_min)
+		movement_loss    = mv.movementLossGPU(struc_t)
+		print(e, "movement: ", mv.movementGPU(struc_t))
+		struc_t -= lr*(likelihood_loss+(eta*movement_loss))
 
-	#loss
-	pc_dist  = ut.pcc_distances(hic_dist_tao, struc_t, row_tao, col_tao, ts)
-	movement = mv.movement(struc_t)
-	pcc_log.append(pc_dist)
-	mov_log.append(movement)
+		#loss
+		pc_dist  = ut.pcc_distancesGPU(hic_dist_tao, struc_t, row_tao, col_tao, ts)
+		print(e, "pc_dist", pc_dist)
+		movement = mv.movementGPU(struc_t)
+		pcc_log.append(pc_dist)
+		mov_log.append(movement)
+		full_time.append(time.time()- start_time)
+		print("GPU epoch time:",str(time.time() - start_time))
 
-#save everthing
-save_str= ""+struc_name+"_rep_"+str(rep)+"_eta_"+str(eta)+"_alpha_"+str(alpha)+"_lr_"+str(lr)+"_epoch_"+str(epochs)+"_res_"+str(res)+"_step_"+str(step)+"_chro_"+str(chro)
-logg = {'pcc_log':pcc_log,
-	'mov_log':mov_log}
-np.save("Generated_Struc_Logs/"+save_str, logg)
-np.save("Generated_Structures/"+save_str, struc_t)
-os.system("./make_gif.sh "+str(ts.shape[0]-1))
+	#save everthing
+	save_str= ""+struc_name+"_rep_"+str(rep)+"_eta_"+str(eta)+"_alpha_"+str(alpha)+"_lr_"+str(lr)+"_epoch_"+str(epochs)+"_res_"+str(res)+"_step_"+str(step)+"_chro_"+str(chro)
+	logg = {'pcc_log':pcc_log,
+		'mov_log':mov_log,
+		'time':full_time}
+	np.save("Generated_Struc_Logs/"+save_str, logg)
+	np.save("Generated_Structures/"+save_str, struc_t)
+	os.system("./make_gif.sh "+str(ts.shape[0]-1))
+
+else:
+	#train
+	pcc_log     = []
+	mov_log     = []
+	full_time   = []
+	for e in range(0, epochs):
+		start_time = time.time()
+		likelihood_loss  = li.likelihoodloss(hic_dist_tao, row_tao, col_tao, struc_t, ts, taos, n_max, n_min)
+		movement_loss    = mv.movementLoss(struc_t)
+		
+		print(e, "movementt: ", mv.movement(struc_t))
+		struc_t -= lr*(likelihood_loss+(eta*movement_loss))
+
+		#loss
+		pc_dist  = ut.pcc_distances(hic_dist_tao, struc_t, row_tao, col_tao, ts)
+		print(e, "pcc_dist", pc_dist)
+		movement = mv.movement(struc_t)
+		pcc_log.append(pc_dist)
+		mov_log.append(movement)
+		full_time.append(time.time()- start_time)
+		print("GPU epoch time:",str(time.time() - start_time))
+
+	#save everthing
+	save_str= ""+struc_name+"_rep_"+str(rep)+"_eta_"+str(eta)+"_alpha_"+str(alpha)+"_lr_"+str(lr)+"_epoch_"+str(epochs)+"_res_"+str(res)+"_step_"+str(step)+"_chro_"+str(chro)
+	logg = {'pcc_log':pcc_log,
+		'mov_log':mov_log,
+		'time':full_time}
+	np.save("Generated_Struc_Logs/"+save_str, logg)
+	np.save("Generated_Structures/"+save_str, struc_t)
+	os.system("./make_gif.sh "+str(ts.shape[0]-1))
+

@@ -3,11 +3,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 time_nms = ['Ba', 'D2', 'D4', 'D6', 'D8', 'PSC']
+times    = [0,2,4,6,8,10]
 def show_pcc(pcc_log, **args):
 	num_hic = len(list(pcc_log[0].keys()))
 	fig, ax = plt.subplots(1)
 	for i in range(0, num_hic):
-		pcc = list(map(lambda x:x[i][0], pcc_log))
+		pcc = list(map(lambda x:x[times[i]][0], pcc_log))
 		ax.plot(pcc, label=time_nms[i])
 	
 	title_ar = []
@@ -43,16 +44,16 @@ def train_graphs(**args):
 
 if __name__ == "__main__":
 	args = {
-		"name":"iPluripotent",
+		"name":"ipsc_full",
 		"rep":2,
 		"eta":1000,
 		"alpha":0.6,
-		"lr":0.0001,
-		"epoch":400,
+		"lr":0.00001,
+		"epoch":1000,
 		"res":50000,
 		"step":21,
 		"chro":3,
 		}
 
-	for chro in [5,6,7]:
+	for chro in [1,2,3]:
 		train_graphs(**args)
