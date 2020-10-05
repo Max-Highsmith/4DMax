@@ -1,0 +1,11 @@
+name: hictool
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=2.7
+  - hmmlearn
+  - natsort
+prefix: /home/sisyphus/miniconda3/envs/hictool
+

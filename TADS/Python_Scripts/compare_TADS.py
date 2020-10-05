@@ -5,7 +5,7 @@ from Utils import tads as tt
 
 
 #exp parameters
-CHRO   = 18
+CHRO   = 10
 REP    = 1
 REPS   = [1,2]
 

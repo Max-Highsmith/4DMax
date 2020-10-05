@@ -1,0 +1,50 @@
+
+ipsc_missing=[2,4,6,8]
+ipsc_etas=[1000]
+ipsc_alpha=[0.6]
+ipsc_lr=[0.0001]
+ipsc_epoch=[400]
+ipsc_res=[50000]
+ipsc_step=[21]
+ipsc_reps=[1]
+ipsc_days=['B','D2','D4','D6','D8','ES']
+ipsc_chros=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,'X']
+
+rule all:
+	input:
+		expand("AB_Vecs/real_ipsc_day_{day}_rep_{rep}_chro_{chro}.npy",
+		day=ipsc_days,
+		rep=ipsc_reps,
+		chro=ipsc_chros),
+
+		expand("AB_Vecs/struc_ipsc_missing_{missing}_rep_{rep}_eta_{eta}_alpha_{alpha}_lr_{lr}_epoch_{epoch}_res_{res}_step_{step}_chro_{chro}.npy",
+		missing=ipsc_missing,
+		rep=ipsc_reps,
+		eta=ipsc_etas,
+		alpha=ipsc_alpha,
+		lr=ipsc_lr,
+		epoch=ipsc_epoch,
+		res=ipsc_res,
+		step=ipsc_step,
+		chro=ipsc_chros)
+
+rule get_4D_AB:
+	input:
+		in_struc = "../Generated_Structures/ipsc_missing_{missing}_rep_{rep}_eta_{eta}_alpha_{alpha}_lr_{lr}_epoch_{epoch}_res_{res}_step_{step}_chro_{chro}.npy"
+	output:
+		abvec="AB_Vecs/struc_ipsc_missing_{missing}_rep_{rep}_eta_{eta}_alpha_{alpha}_lr_{lr}_epoch_{epoch}_res_{res}_step_{step}_chro_{chro}.npy"
+	shell:
+		"python Python_Scripts/get_AB_Struc.py {input.in_struc} {output.abvec}"
+
+rule get_Real_AB:
+	input:
+		hic="../Real_Data/iPluripotent/day_{day}_rep_{rep}_chro_{chro}"
+	output:
+		abvec="AB_Vecs/real_ipsc_day_{day}_rep_{rep}_chro_{chro}.npy"
+	shell:
+		"python Python_Scripts/get_AB_Real.py {input.hic} {output.abvec}"
+
+
+
+
+

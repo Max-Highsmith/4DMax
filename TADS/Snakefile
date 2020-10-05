@@ -1,0 +1,128 @@
+ipsc_missing=[2,4,6,8]
+ipsc_missing_index=[4,8,12,16]
+ipsc_rep=[1,2]
+ipsc_eta=[1000]
+ipsc_alpha=[0.6]
+ipsc_lr=[0.0001]
+ipsc_epoch=[400]
+ipsc_res=[50000]
+ipsc_step=[21]
+ipsc_chro=[19]
+#ipsc_days=['B','D2','D4', 'D6', 'D8','ES']
+#ipsc_chro=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,'X']
+ipsc_days=['B']
+
+
+rule all:
+	input:
+		#expand("Mat_Files/real_norm_ipsc_day_{day}_rep_{rep}_chro_{chro}",
+		#	day=ipsc_days,
+		#	rep=ipsc_rep,
+		#	chro=ipsc_chro)
+		expand("HiC_Tool_Tads/ipsc_{missing}_{rep}_{eta}_{alpha}_{lr}_{epoch}_{res}_{step}_{chro}.npy",
+			missing=ipsc_missing,
+			rep=ipsc_rep,
+			eta=ipsc_eta,
+			alpha=ipsc_alpha,
+			lr=ipsc_lr,
+			epoch=ipsc_epoch,
+			res=ipsc_res,
+			step=ipsc_step,
+			chro=ipsc_chro),
+'''
+		expand("HiC_Tool_Tads/ipscFull_{rep}_{eta}_{alpha}_{lr}_{epoch}_{res}_{step}_{chro}.npy",
+			missing=ipsc_missing,
+			rep=ipsc_rep,
+			eta=ipsc_eta,
+			alpha=ipsc_alpha,
+			lr=ipsc_lr,
+			epoch=ipsc_epoch,
+			res=ipsc_res,
+			step=ipsc_step,
+			chro=ipsc_chro),
+
+		expand("HiC_Tool_Tads/tad_real_ipsc_day_{day}_rep_{rep}_chro_{chro}.npy",
+			day=ipsc_days,
+			rep=ipsc_rep,
+			chro=ipsc_chro),
+'''
+
+
+
+#rule max new
+rule get_normed_mat_file_Real:
+	input:
+		in_file="../Real_Data/iPluripotent/day_{day}_rep_{rep}_chro_{chro}"
+	output:
+		mat_file="Mat_Files/real_norm_ipsc_day_{day}_rep_{rep}_chro_{chro}"
+	conda:
+		"ENVS/4dmax.yml"
+	shell:
+		"python Python_Scripts/get_iPSC_Real_Norm.py iPluripotent {wildcards.day} {wildcards.rep} {wildcards.chro} {output.mat_file}"
+
+
+
+rule get_mat_file_from_Real_Data:
+	input:
+		in_file="../Real_Data/iPluripotent/day_{day}_rep_{rep}_chro_{chro}"
+	output:
+		mat_file=temp("Mat_Files/real_ipsc_day_{day}_rep_{rep}_chro_{chro}")
+	conda:
+		"ENVS/4dmax.yml"
+	shell:
+		"python Python_Scripts/get_TADS_Original_Contacts.py iPluripotent {wildcards.day} {wildcards.rep} {wildcards.chro} {output.mat_file}" 
+
+
+rule get_Tad_from_real_data:
+	input:
+		in_file="Mat_Files/real_ipsc_day_{day}_rep_{rep}_chro_{chro}"
+	output:
+		tads="HiC_Tool_Tads/tad_real_ipsc_day_{day}_rep_{rep}_chro_{chro}.npy"
+	conda:
+		"ENVS/hictool.yml"
+	shell:
+		"python Python_Scripts/get_TADS_from_real.py {input.in_file} {wildcards.chro} 50000 {output.tads}"
+
+
+rule get_mat_file_from_Struc:
+	input:
+		in_struc = "../Generated_Structures/ipsc_missing_{missing}_rep_{rep}_eta_{eta}_alpha_{alpha}_lr_{lr}_epoch_{epoch}_res_{res}_step_{step}_chro_{chro}.npy"
+	output:
+		mat_file=temp(directory("Mat_Files/ipsc_{missing}_{rep}_{eta}_{alpha}_{lr}_{epoch}_{res}_{step}_{chro}"))
+	conda:
+		"ENVS/4dmax.yml"
+	shell:
+		"python Python_Scripts/get_4DMats.py {input.in_struc} {output.mat_file}"
+
+
+rule get_Tad_from_struc:
+	input:
+		mat_file="Mat_Files/ipsc_{missing}_{rep}_{eta}_{alpha}_{lr}_{epoch}_{res}_{step}_{chro}"
+	output:
+		tads="HiC_Tool_Tads/ipsc_{missing}_{rep}_{eta}_{alpha}_{lr}_{epoch}_{res}_{step}_{chro}.npy"
+	conda:
+		"ENVS/hictool.yml"
+	shell:
+		"python Python_Scripts/get_TADS_from_4DMats.py {input.mat_file} {wildcards.chro} {wildcards.res} {output.tads}"
+
+rule get_mat_file_from_Struc_all_ipsc:
+	input:
+		in_struc = "../Generated_Structures/ipsc_full_rep_{rep}_eta_{eta}_alpha_{alpha}_lr_{lr}_epoch_{epoch}_res_{res}_step_{step}_chro_{chro}.npy"
+	output:
+		mat_file=temp(directory("Mat_Files/ipsc_full_{rep}_{eta}_{alpha}_{lr}_{epoch}_{res}_{step}_{chro}"))
+	conda:
+		"ENVS/4dmax.yml"
+	shell:
+		"python Python_Scripts/get_4DMats.py {input.in_struc} {output.mat_file}"
+
+
+rule get_Tad_from_mat_file_all_ipsc:
+	input:
+		mat_file="Mat_Files/ipsc_full_{rep}_{eta}_{alpha}_{lr}_{epoch}_{res}_{step}_{chro}"
+	output:
+		tads="HiC_Tool_Tads/ipscFull_{rep}_{eta}_{alpha}_{lr}_{epoch}_{res}_{step}_{chro}.npy"
+	conda:
+		"ENVS/hictool.yml"
+	shell:
+		"python Python_Scripts/get_TADS_from_4DMats.py {input.mat_file} {wildcards.chro} {wildcards.res} {output.tads}"
+
