@@ -34,6 +34,15 @@ examples shown in:
 	'python Python_Scripts/create_gif.py {output.outfig} {input.npfile}
 
 # Reproduce white paper experiments.
-1.  download the needed files using getDatasetScripts.py #TODO #TODO
-
+1.  Download needed Hi-C files Cardiomyocyte GSE106690 iPSC GSE96611
+2.  Generate modes
+	'snakemake'
+3. Generate TADS
+	'cd TADS;
+	snakemake --use-conda
+	'
+4. Generate AB Compartments:
+	'cd AB;
+	snakemake'
+	
 #To run on your own data
