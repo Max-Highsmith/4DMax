@@ -45,4 +45,3 @@ examples shown in:
 	'cd AB;
 	snakemake'
 	
-#To run on your own data
