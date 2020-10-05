@@ -38,7 +38,7 @@ fn         = data_vals['dataset']
 start_t    = data_vals['start_t']
 end_t      = data_vals['end_t']
 chro       = data_vals['chro']
-step       = data_vals['step']
+step       = int(data_vals['step'])
 taos       = np.array(data_vals['taos'])
 
 ts   = np.linspace(start_t,end_t,step)
@@ -66,6 +66,9 @@ for s, tao in enumerate(taos):
 
 n_max  = n_tao[list(n_tao.keys())[0]]
 #n_min  = n_min_tao[list(n_tao.keys())[0]]
+###NEW MAX
+n_max   = np.max(list(n_tao.values()))
+###
 n_min   = np.min(list(n_min_tao.values()))
 for s, tao in enumerate(taos):
 	row_tao[tao] = row_tao[tao] - n_min_tao[tao]
@@ -115,6 +118,7 @@ else:
 	mov_log     = []
 	full_time   = []
 	for e in range(0, epochs):
+		pdb.set_trace()
 		start_time = time.time()
 		likelihood_loss  = li.likelihoodloss(hic_dist_tao, row_tao, col_tao, struc_t, ts, taos, n_max, n_min)
 		movement_loss    = mv.movementLoss(struc_t)

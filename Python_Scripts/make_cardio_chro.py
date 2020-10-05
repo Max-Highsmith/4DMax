@@ -7,11 +7,11 @@ from Utils import util as ut
 out_name = sys.argv[1]
 rep      = int(sys.argv[2])
 chro     = sys.argv[3]
+step     = int(sys.argv[4])
 
 res      = 1 #the res is really 500000 but the files store bins by increasing number 1
 start_t  = 0
 end_t    = 14
-step     = 15
 
 name     = "cardio_full"
 taos     = np.array([0,2,5,14])
@@ -28,7 +28,7 @@ if rep == 2:
 		"Real_Data/Cardiomyocyte/RUES2/By_Chros/GSM2845455_CM_Rep2_500KB_"+str(chro)]
 
 dd = {"name":name,
-	"step":step,
+	"step":int(step),
 	"res":res,
 	"chro":chro,
 	"rep":rep,

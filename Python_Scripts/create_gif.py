@@ -50,7 +50,7 @@ def altPlot3d(struc, dirr):
                 y   = struc[t][:,1]
                 z   = struc[t][:,2]
                 x,y,z = clean(x,y,z)
-                ax.plot(x,y,z, linewidth=1)
+                ax.plot(x,y,z, linewidth=1, color='red')
                 ax.set_title(str(t))
                 ax.set_xlim(window[0], window[1])
                 ax.set_ylim(window[0], window[1])

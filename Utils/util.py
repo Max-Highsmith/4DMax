@@ -121,8 +121,10 @@ def saveContacts(struc_t, struc_name, res):
 
 
 def if2dist(contact_maps, alpha):
-        #alpha = 1
-        return 1/(contact_maps**alpha)
+	val= 1/(contact_maps**alpha)
+	#if np.isinf(val).any():
+	#	val[np.where(np.isinf(val))] = np.max(val[np.logical_not(np.isinf(val))])
+	return val
 
 def getWishDistances(struc_t, row_tau, col_tau, ts):
         wishes = {}

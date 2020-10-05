@@ -6,7 +6,7 @@ from Utils import util as ut
 
 out_name = sys.argv[1]
 rep      = int(sys.argv[2])
-
+step     = sys.argv[3]
 res      = 1 #the res is really 500000 but the files store bins by increasing number 1
 start_t  = 0
 end_t    = 14
