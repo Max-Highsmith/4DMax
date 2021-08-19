@@ -2,6 +2,9 @@
 
 ![alt text](https://github.com/Max-Highsmith/4DMax/blob/master/4DMax_Logo.png)
 
+# Install
+4DMax runs entirely in python. Use expects access to a GPU.  To install use 
+	'conda env create -f environment.yml'
 
 # 4DMax 
 
