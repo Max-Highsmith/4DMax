@@ -132,5 +132,9 @@ for c, chro in enumerate(CHROS):
         ax.set_xticks([])
     plt.savefig(str(chro)+".png", dpi=200)
 
-
+pdb.set_trace()
+print("mean recon overlap:", np.mean(bar[:,:,1]))
+print("mean inter overlap:", np.mean(bar[:,:,2]))
+print("max recon overlap:", np.max(bar[:,:,1]))
+print("max inter overlap:", np.max(bar[:,:,2]))
 

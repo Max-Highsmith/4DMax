@@ -1,3 +1,5 @@
+import sys
+sys.path.append(".")
 import pdb
 import numpy as np
 import matplotlib.pyplot as plt
@@ -5,7 +7,7 @@ from Utils import tads as tt
 
 
 #exp parameters
-CHRO   = 10
+CHRO   = 1
 REP    = 1
 REPS   = [1,2]
 
